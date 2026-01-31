@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Review & Rewrite Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-slate-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🤖 Code Review Agent</h1>
+        
+        <div class="bg-slate-800 p-6 rounded-lg shadow-xl">
+            <textarea id="codeInput" class="w-full h-64 bg-slate-700 p-4 rounded mb-4 font-mono" placeholder="Paste your code here..."></textarea>
+            
+            <div class="flex gap-4 mb-4">
+                <select id="language" class="bg-slate-700 p-2 rounded">
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="java">Java</option>
+                </select>
+                <button onclick="submitReview()" class="bg-blue-600 px-6 py-2 rounded hover:bg-blue-500">Review Code</button>
+            </div>
+
+            <div id="results" class="prose prose-invert max-w-none mt-6 p-4 bg-slate-700 rounded hidden">
+                <h2 class="text-xl font-semibold border-b border-slate-600 pb-2">Review Results</h2>
+                <div id="reviewContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function submitReview() {
+            const code = document.getElementById('codeInput').value;
+            const language = document.getElementById('language').value;
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('reviewContent');
+
+            const response = await fetch('http://127.0.0.1:8000/api/review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language, focus_areas: ["Bugs", "Security", "Performance"] })
+            });
+
+            const data = await response.json();
+            resultsDiv.classList.remove('hidden');
+            contentDiv.innerHTML = marked.parse(data.review);
+            hljs.highlightAll();
+        }
+    </script>
+</body>
+</html>
